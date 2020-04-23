@@ -1,0 +1,21 @@
+version: "2"
+services:
+  ingress:
+    image: traefik:v2.2
+    command: --providers.docker --accesslog=true
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  creamy-stuff:
+    build: .
+    labels:
+      # username test, password test
+      - "traefik.http.middlewares.dev-auth.basicauth.users=test:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/"
+      - "traefik.http.routers.creamy-stuff-private.rule=Host(`creamy-stuff.docker.localhost`)"
+      - "traefik.http.routers.creamy-stuff-private.middlewares=dev-auth"
+      - "traefik.http.routers.creamy-stuff-public.rule=Host(`creamy-stuff.docker.localhost`) && PathPrefix(`/view/`)"
+      - "traefik.http.services.creamy-stuff.loadbalancer.server.port=8080"
+    volumes:
+      - ./data:/data
