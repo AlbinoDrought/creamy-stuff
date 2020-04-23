@@ -28,7 +28,9 @@ type BrowsePage struct {
     {% for _, file := range p.Files %}
       <li>
         <a href="{%s file.BrowseLink %}">{%s file.Label %}</a>
-        (<a href="{%s file.ShareLink %}">share</a>)
+        {% if file.ShareLink != "" %}
+          (<a href="{%s file.ShareLink %}">share</a>)
+        {% endif %}
       </li>
 	  {% endfor %}
   </ul>
