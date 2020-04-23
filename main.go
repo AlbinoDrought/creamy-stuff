@@ -289,8 +289,14 @@ func handleChallengeAuthentication(w http.ResponseWriter, r *http.Request, ps ht
 	w.Write([]byte("401 Unauthorized"))
 }
 
+func handleHome(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	templates.WritePageTemplate(w, &templates.HomePage{})
+}
+
 func main() {
 	router := httprouter.New()
+
+	router.GET("/", handleHome)
 
 	router.GET("/stuff/browse/*filepath", handleStuffIndex)
 	router.GET("/stuff/share/*filepath", handleStuffShowForm)

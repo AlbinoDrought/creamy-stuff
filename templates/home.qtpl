@@ -1,0 +1,11 @@
+{% code
+type HomePage struct {}
+%}
+
+{% func (p *HomePage) Title() %}
+	Creamy Stuff
+{% endfunc %}
+
+{% func (p *HomePage) Body() %}
+  <div>I'm a little teapot</div>
+{% endfunc %}
