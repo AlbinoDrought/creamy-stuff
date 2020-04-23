@@ -15,9 +15,8 @@ type BrowsePage struct {
 %}
 
 {% func (p *BrowsePage) Title() %}
-	This is the browse page
+	Browsing {%s p.DirectoryName %}
 {% endfunc %}
-
 
 {% func (p *BrowsePage) Body() %}
   <ul>

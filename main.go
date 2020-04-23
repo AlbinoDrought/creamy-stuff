@@ -76,11 +76,17 @@ func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 
 	upwardsURL := url.URL{Path: "/stuff/browse" + path.Join(filePath, "..")}
 
+	atRoot := filePath == "" || filePath == "/"
+	directoryName := filePath
+	if atRoot {
+		directoryName = "/"
+	}
+
 	browsePage := &templates.BrowsePage{
-		DirectoryName: filePath,
+		DirectoryName: directoryName,
 		Files:         files,
 
-		CanTravelUpwards: filePath != "" && filePath != "/",
+		CanTravelUpwards: !atRoot,
 		UpwardsLink:      upwardsURL.String(),
 	}
 	templates.WritePageTemplate(w, browsePage)
