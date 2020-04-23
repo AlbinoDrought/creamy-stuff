@@ -1,4 +1,4 @@
-all: deps generate
+all: generate deps
 
 deps:
 	go get -d -v
@@ -8,13 +8,13 @@ gen: generate
 generate:
 	go generate
 
-build: deps generate
+build: generate deps
 	go build
 
 run: build
 	./creamy-stuff
 
-install: deps generate
+install: generate deps
 	go install
 
 uninstall:
