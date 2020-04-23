@@ -39,6 +39,11 @@ func init() {
 	challengeRepository.Get("bar").SetPassword("foo")
 }
 
+func renderServerError(w http.ResponseWriter, r *http.Request, err error) {
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte("500 Internal Server Error"))
+}
+
 func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	filePath := path.Clean(ps.ByName("filepath"))
 
@@ -46,16 +51,14 @@ func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 	file, err := dir.Open(filePath)
 	if err != nil {
 		log.Printf("Error opening file %v: %v", filePath, err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500 Internal Server Error"))
+		renderServerError(w, r, err)
 		return
 	}
 
 	stat, err := file.Stat()
 	if err != nil {
 		log.Printf("Error stat'ing file %v: %v", filePath, err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500 Internal Server Error"))
+		renderServerError(w, r, err)
 		return
 	}
 
@@ -67,8 +70,7 @@ func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 	dirs, err := file.Readdir(-1)
 	if err != nil {
 		log.Printf("Error reading directory %v: %v", filePath, err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500 Internal Server Error"))
+		renderServerError(w, r, err)
 		return
 	}
 	sort.Slice(dirs, func(i, j int) bool { return dirs[i].Name() < dirs[j].Name() })
@@ -115,24 +117,21 @@ func handleStuffShowForm(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	_, err := dir.Open(filePath)
 	if err != nil {
 		log.Printf("Error opening file %v: %v", filePath, err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500 Internal Server Error"))
+		renderServerError(w, r, err)
 		return
 	}
 
 	csrfToken, err := getOrCreateCSRF(w, r)
 	if err != nil {
 		log.Printf("Error with getOrCreateCSRF: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500 Internal Server Error"))
+		renderServerError(w, r, err)
 		return
 	}
 
 	randomPassword, err := RandomString(challengeRandomPasswordLength)
 	if err != nil {
 		log.Printf("Error generating random challenge password: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500 Internal Server Error"))
+		renderServerError(w, r, err)
 		return
 	}
 
@@ -155,23 +154,20 @@ func handleStuffReceiveForm(w http.ResponseWriter, r *http.Request, ps httproute
 	_, err := dir.Open(filePath)
 	if err != nil {
 		log.Printf("Error opening file %v: %v", filePath, err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500 Internal Server Error"))
+		renderServerError(w, r, err)
 		return
 	}
 
 	if err := validCSRF(r, r.FormValue("_token")); err != nil {
 		log.Printf("Error validating CSRF token: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500 Internal Server Error"))
+		renderServerError(w, r, err)
 		return
 	}
 
 	challengeID, err := RandomString(challengeIDLength)
 	if err != nil {
 		log.Printf("Error generating challenge ID: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500 Internal Server Error"))
+		renderServerError(w, r, err)
 		return
 	}
 
@@ -183,8 +179,7 @@ func handleStuffReceiveForm(w http.ResponseWriter, r *http.Request, ps httproute
 	if challengePassword := r.FormValue("challenge-password"); challengePassword != "" {
 		if err = challenge.SetPassword(challengePassword); err != nil {
 			log.Printf("Error setting challenge password: %v", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("500 Internal Server Error"))
+			renderServerError(w, r, err)
 			return
 		}
 	}
@@ -217,8 +212,7 @@ func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprout
 			csrfToken, err := getOrCreateCSRF(w, r)
 			if err != nil {
 				log.Printf("Error with getOrCreateCSRF: %v", err)
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte("500 Internal Server Error"))
+				renderServerError(w, r, err)
 				return
 			}
 
@@ -240,16 +234,14 @@ func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprout
 	file, err := dir.Open(filePath)
 	if err != nil {
 		log.Printf("Error opening file %v: %v", filePath, err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500 Internal Server Error"))
+		renderServerError(w, r, err)
 		return
 	}
 
 	stat, err := file.Stat()
 	if err != nil {
 		log.Printf("Error stat'ing file %v: %v", filePath, err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500 Internal Server Error"))
+		renderServerError(w, r, err)
 		return
 	}
 
@@ -261,8 +253,7 @@ func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprout
 	dirs, err := file.Readdir(-1)
 	if err != nil {
 		log.Printf("Error reading directory %v: %v", filePath, err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500 Internal Server Error"))
+		renderServerError(w, r, err)
 		return
 	}
 	sort.Slice(dirs, func(i, j int) bool { return dirs[i].Name() < dirs[j].Name() })
@@ -316,8 +307,7 @@ func handleChallengeAuthentication(w http.ResponseWriter, r *http.Request, ps ht
 
 	if err := validCSRF(r, r.FormValue("_token")); err != nil {
 		log.Printf("Error validating CSRF token: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500 Internal Server Error"))
+		renderServerError(w, r, err)
 		return
 	}
 
