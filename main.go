@@ -106,7 +106,7 @@ func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 		CanTravelUpwards: !atRoot,
 		UpwardsLink:      upwardsURL.String(),
 	}
-	templates.WritePageTemplate(w, browsePage)
+	templates.WritePageTemplate(w, browsePage, &templates.PrivateNav{})
 }
 
 func handleStuffShowForm(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -146,7 +146,7 @@ func handleStuffShowForm(w http.ResponseWriter, r *http.Request, ps httprouter.P
 
 		CancelLink: cancelURL.String(),
 	}
-	templates.WritePageTemplate(w, sharePage)
+	templates.WritePageTemplate(w, sharePage, &templates.PrivateNav{})
 }
 
 func handleStuffReceiveForm(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -199,7 +199,7 @@ func handleStuffReceiveForm(w http.ResponseWriter, r *http.Request, ps httproute
 
 		ViewLink: challengeURL.String(),
 	}
-	templates.WritePageTemplate(w, sharedChallengePage)
+	templates.WritePageTemplate(w, sharedChallengePage, &templates.PrivateNav{})
 }
 
 func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -290,7 +290,7 @@ func handleChallengeAuthentication(w http.ResponseWriter, r *http.Request, ps ht
 }
 
 func handleHome(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	templates.WritePageTemplate(w, &templates.HomePage{})
+	templates.WritePageTemplate(w, &templates.HomePage{}, &templates.PrivateNav{})
 }
 
 func main() {

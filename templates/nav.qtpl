@@ -1,0 +1,26 @@
+{% 
+interface Nav {
+  Render()
+}
+%}
+
+{% code
+type PrivateNav struct {}
+%}
+
+{% func (nav *PrivateNav) Render() %}
+<nav>
+  <a href="/">Home</a>
+  <a href="/stuff/browse">Browse</a>
+  <a href="/challenges">Active Shares</a>
+</nav>
+{% endfunc %}
+
+{% code
+type EmptyNav struct {}
+%}
+
+{% func (nav *EmptyNav) Render() %}
+{% endfunc %}
+
+

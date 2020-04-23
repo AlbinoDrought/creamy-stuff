@@ -10,7 +10,7 @@ Page {
 
 
 Page prints a page implementing Page interface.
-{% func PageTemplate(p Page) %}
+{% func PageTemplate(p Page, nav Nav) %}
 <html>
 	<head>
 		<meta charset="utf-8">
@@ -54,11 +54,7 @@ Page prints a page implementing Page interface.
 		</style>
 	</head>
 	<body>
-		<nav>
-			<a href="/">Home</a>
-			<a href="/stuff/browse">Browse</a>
-			<a href="/challenges">Active Shares</a>
-		</nav>
+		{%= nav.Render() %}
 		{%= p.Body() %}
 	</body>
 </html>
