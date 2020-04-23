@@ -1,0 +1,29 @@
+{% import "github.com/AlbinoDrought/creamy-stuff/stuff" %}
+
+{% code
+type UnlockPage struct {
+  Challenge *stuff.Challenge
+  CSRF string
+}
+%}
+
+{% func (p *UnlockPage) Title() %}
+	Unlock {%s p.Challenge.ID %}
+{% endfunc %}
+
+{% func (p *UnlockPage) Body() %}
+  <form method="POST">
+    <input type="hidden" name="_token" value="{%s p.CSRF %}">
+    
+    <div>
+      <label for="challenge-password">Password</label>
+      <input type="text" name="challenge-password">
+    </div>
+
+    <div>
+      <button type="submit">
+        Unlock
+      </button>
+    </div>
+  </form>
+{% endfunc %}

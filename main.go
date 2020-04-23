@@ -4,8 +4,6 @@ package main
 //go:generate qtc -dir=templates
 
 import (
-	"fmt"
-	"html"
 	"log"
 	"net/http"
 	"net/url"
@@ -38,6 +36,7 @@ func init() {
 		Public:     false,
 		SharedPath: "data-private",
 	})
+	challengeRepository.Get("bar").SetPassword("foo")
 }
 
 func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -214,9 +213,6 @@ func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 
 	if !challenge.Accessible(r) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.WriteHeader(http.StatusUnauthorized)
-
 		if challenge.HasPassword {
 			csrfToken, err := getOrCreateCSRF(w, r)
 			if err != nil {
@@ -226,12 +222,13 @@ func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprout
 				return
 			}
 
-			fmt.Fprintln(w, "<form method=\"POST\">")
-			fmt.Fprintf(w, "<input type=\"hidden\" name=\"_token\" value=\"%s\">\n", html.EscapeString(csrfToken))
-			fmt.Fprintf(w, "<div><label for=\"challenge-password\">Password</label> <input type=\"text\" name=\"challenge-password\"></div>")
-			fmt.Fprintln(w, "<div><button type=\"submit\">Unlock</button></div>")
-			fmt.Fprintln(w, "</form>")
+			w.WriteHeader(http.StatusUnauthorized)
+			templates.WritePageTemplate(w, &templates.UnlockPage{
+				Challenge: challenge,
+				CSRF:      csrfToken,
+			}, &templates.EmptyNav{})
 		} else {
+			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("Unauthorized"))
 		}
 
