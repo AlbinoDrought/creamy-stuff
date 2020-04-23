@@ -12,6 +12,7 @@ import (
 	"path"
 	"sort"
 
+	"github.com/AlbinoDrought/creamy-stuff/stuff"
 	"github.com/AlbinoDrought/creamy-stuff/templates"
 	"github.com/julienschmidt/httprouter"
 )
@@ -20,6 +21,24 @@ const challengeIDLength = 64
 const challengeRandomPasswordLength = 128
 
 var dataDirectory = "data"
+
+var challengeRepository stuff.ChallengeRepository
+
+func init() {
+	challengeRepository = stuff.NewArrayChallengeRepository()
+
+	challengeRepository.Set(&stuff.Challenge{
+		ID:         "foo",
+		Public:     true,
+		SharedPath: "data",
+	})
+
+	challengeRepository.Set(&stuff.Challenge{
+		ID:         "bar",
+		Public:     false,
+		SharedPath: "data-private",
+	})
+}
 
 func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	filePath := path.Clean(ps.ByName("filepath"))
@@ -157,7 +176,7 @@ func handleStuffReceiveForm(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 
-	challenge := &Challenge{
+	challenge := &stuff.Challenge{
 		ID:         challengeID,
 		Public:     r.FormValue("public") == "1",
 		SharedPath: filePath,

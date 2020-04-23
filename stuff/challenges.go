@@ -1,4 +1,4 @@
-package main
+package stuff
 
 import (
 	"encoding/hex"
@@ -85,21 +85,8 @@ func (repo *ArrayChallengeRepository) Remove(challenge *Challenge) {
 	delete(repo.challenges, challenge.ID)
 }
 
-var challengeRepository ChallengeRepository
-
-func init() {
-	challengeRepository = &ArrayChallengeRepository{
-		challenges: map[string]*Challenge{
-			"foo": &Challenge{
-				ID:         "foo",
-				Public:     true,
-				SharedPath: "data",
-			},
-			"bar": &Challenge{
-				ID:         "bar",
-				Public:     false,
-				SharedPath: "data-private",
-			},
-		},
+func NewArrayChallengeRepository() ChallengeRepository {
+	return &ArrayChallengeRepository{
+		challenges: make(map[string]*Challenge),
 	}
 }
