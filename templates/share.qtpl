@@ -1,3 +1,5 @@
+{% import "github.com/AlbinoDrought/creamy-stuff/stuff" %}
+
 {% code
 type SharePage struct {
   Path string
@@ -33,4 +35,22 @@ type SharePage struct {
       <a href="{%s p.CancelLink %}">Cancel</a>
     </div>
   </form>
+{% endfunc %}
+
+{% code
+type SharedChallengePage struct {
+  Challenge *stuff.Challenge
+
+  ViewLink string
+}
+%}
+
+{% func (p *SharedChallengePage) Title() %}
+	Shared {%s p.Challenge.SharedPath %}: {%s p.Challenge.ID %}
+{% endfunc %}
+
+{% func (p *SharedChallengePage) Body() %}
+  <div>
+    <a href="{%s p.ViewLink %}">Shareable Link</a>
+  </div>
 {% endfunc %}

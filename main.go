@@ -192,12 +192,14 @@ func handleStuffReceiveForm(w http.ResponseWriter, r *http.Request, ps httproute
 
 	challengeRepository.Set(challenge)
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
 	challengeURL := url.URL{Path: "/view/" + challenge.ID}
-	challengeURLString := html.EscapeString(challengeURL.String())
 
-	fmt.Fprintf(w, "<a href=\"%s\">%s</a>", challengeURLString, challengeURLString)
+	sharedChallengePage := &templates.SharedChallengePage{
+		Challenge: challenge,
+
+		ViewLink: challengeURL.String(),
+	}
+	templates.WritePageTemplate(w, sharedChallengePage)
 }
 
 func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
