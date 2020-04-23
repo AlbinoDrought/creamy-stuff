@@ -1,0 +1,16 @@
+{% code
+type ErrorPage struct {
+  Status int
+  Text string
+}
+%}
+
+{% func (p *ErrorPage) Title() %}
+  {%d p.Status %} {%s p.Text %}
+{% endfunc %}
+
+{% func (p *ErrorPage) Body() %}
+  <strong>
+    {%d p.Status %} {%s p.Text %}
+  </strong>
+{% endfunc %}

@@ -40,19 +40,30 @@ func init() {
 	challengeRepository.Set(challenge)
 }
 
+func writeErrorPage(w http.ResponseWriter, page *templates.ErrorPage) {
+	w.WriteHeader(page.Status)
+	templates.WritePageTemplate(w, page, &templates.EmptyNav{})
+}
+
 func renderServerError(w http.ResponseWriter, r *http.Request, err error) {
-	w.WriteHeader(http.StatusInternalServerError)
-	w.Write([]byte("500 Internal Server Error"))
+	writeErrorPage(w, &templates.ErrorPage{
+		Status: http.StatusInternalServerError,
+		Text:   "Internal Server Error",
+	})
 }
 
 func renderUnauthorized(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusUnauthorized)
-	w.Write([]byte("401 Unauthorized"))
+	writeErrorPage(w, &templates.ErrorPage{
+		Status: http.StatusUnauthorized,
+		Text:   "Unauthorized",
+	})
 }
 
 func renderChallengeNotFound(w http.ResponseWriter, r *http.Request, ID string) {
-	w.WriteHeader(http.StatusNotFound)
-	w.Write([]byte("Challenge not found"))
+	writeErrorPage(w, &templates.ErrorPage{
+		Status: http.StatusNotFound,
+		Text:   "Challenge not found",
+	})
 }
 
 func handleChallengesIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
