@@ -122,12 +122,16 @@ func handleStuffShowForm(w http.ResponseWriter, r *http.Request, ps httprouter.P
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	fmt.Fprintln(w, "<form method=\"POST\">")
-	fmt.Fprintf(w, "<input type=\"hidden\" name=\"_token\" value=\"%s\">\n", html.EscapeString(csrfToken))
-	fmt.Fprintf(w, "<div><label for=\"public\">Public <input type=\"checkbox\" name=\"public\" value=\"1\"></label></div>")
-	fmt.Fprintf(w, "<div><label for=\"challenge-password\">Password</label> <input type=\"text\" name=\"challenge-password\" value=\"%s\"></div>", randomPassword)
-	fmt.Fprintln(w, "<div><button type=\"submit\">Share</button></div>")
-	fmt.Fprintln(w, "</form>")
+	cancelURL := url.URL{Path: "/stuff/browse" + path.Join(filePath, "..")}
+
+	sharePage := &templates.SharePage{
+		Path:           filePath,
+		CSRF:           csrfToken,
+		RandomPassword: randomPassword,
+
+		CancelLink: cancelURL.String(),
+	}
+	templates.WritePageTemplate(w, sharePage)
 }
 
 func handleStuffReceiveForm(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

@@ -1,0 +1,36 @@
+{% code
+type SharePage struct {
+  Path string
+  CSRF string
+  RandomPassword string
+
+  CancelLink string
+}
+%}
+
+{% func (p *SharePage) Title() %}
+	Sharing {%s p.Path %}
+{% endfunc %}
+
+{% func (p *SharePage) Body() %}
+  <form method="POST">
+    <input type="hidden" name="_token" value="{%s p.CSRF %}">
+    
+    <div>
+      <label for="public">
+        Public
+        <input type="checkbox" name="public" value="1">
+      </label>
+    </div>
+
+    <div>
+      <label for="challenge-password">Password</label>
+      <input type="text" name="challenge-password" value="{%s p.RandomPassword %}">
+    </div>
+
+    <div>
+      <button type="submit">Share</button>
+      <a href="{%s p.CancelLink %}">Cancel</a>
+    </div>
+  </form>
+{% endfunc %}
