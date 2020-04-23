@@ -330,8 +330,7 @@ func handleChallengeAuthentication(w http.ResponseWriter, r *http.Request, ps ht
 		}
 	}
 
-	w.WriteHeader(http.StatusUnauthorized)
-	w.Write([]byte("401 Unauthorized"))
+	handleChallengeFilepath(w, r, ps)
 }
 
 func handleHome(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
