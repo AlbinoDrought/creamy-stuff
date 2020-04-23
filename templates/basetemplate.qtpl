@@ -1,0 +1,32 @@
+This is a base page template. All the other template pages implement this interface.
+https://github.com/valyala/quicktemplate/blob/master/examples/basicserver/templates/basepage.qtpl
+
+{% interface
+Page {
+	Title()
+	Body()
+}
+%}
+
+
+Page prints a page implementing Page interface.
+{% func PageTemplate(p Page) %}
+<html>
+	<head>
+		<title>{%= p.Title() %}</title>
+	</head>
+	<body>
+		<div>
+			<a href="/stuff/browse">Browse</a>
+		</div>
+		{%= p.Body() %}
+	</body>
+</html>
+{% endfunc %}
+
+
+Base page implementation. Other pages may inherit from it if they need
+overriding only certain Page methods
+{% code type BasePage struct {} %}
+{% func (p *BasePage) Title() %}This is a base title{% endfunc %}
+{% func (p *BasePage) Body() %}This is a base body{% endfunc %}

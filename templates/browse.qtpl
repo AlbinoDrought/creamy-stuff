@@ -1,0 +1,36 @@
+{% code
+type File struct {
+  Label string
+  BrowseLink string
+  ShareLink string
+}
+
+type BrowsePage struct {
+  DirectoryName string
+  Files []File
+
+  CanTravelUpwards bool
+  UpwardsLink string
+}
+%}
+
+{% func (p *BrowsePage) Title() %}
+	This is the browse page
+{% endfunc %}
+
+
+{% func (p *BrowsePage) Body() %}
+  <ul>
+    {% if p.CanTravelUpwards %}
+      <li>
+        <a href="{%s p.UpwardsLink %}">..</a>
+      </li>
+    {% endif %}
+    {% for _, file := range p.Files %}
+      <li>
+        <a href="{%s file.BrowseLink %}">{%s file.Label %}</a>
+        (<a href="{%s file.ShareLink %}">share</a>)
+      </li>
+	  {% endfor %}
+  </ul>
+{% endfunc %}

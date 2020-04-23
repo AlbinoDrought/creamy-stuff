@@ -1,5 +1,8 @@
 package main
 
+//go:generate go get -u github.com/valyala/quicktemplate/qtc
+//go:generate qtc -dir=templates
+
 import (
 	"fmt"
 	"html"
@@ -9,6 +12,7 @@ import (
 	"path"
 	"sort"
 
+	"github.com/AlbinoDrought/creamy-stuff/templates"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -53,24 +57,33 @@ func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	fmt.Fprintln(w, "<ul>")
-	for _, d := range dirs {
-		name := d.Name()
-		if d.IsDir() {
+	files := make([]templates.File, len(dirs))
+	for i, dir := range dirs {
+		name := dir.Name()
+		if dir.IsDir() {
 			name += "/"
 		}
 
-		fmt.Fprintln(w, "<li>")
+		pathRelativeToDataDir := path.Join(filePath, name)
 
-		browseURL := url.URL{Path: name}
-		fmt.Fprintf(w, "<a href=\"%s\">%s</a>\n", browseURL.String(), html.EscapeString(name))
+		browseURL := url.URL{Path: "/stuff/browse" + pathRelativeToDataDir}
+		shareURL := url.URL{Path: "/stuff/share" + pathRelativeToDataDir}
 
-		shareURL := url.URL{Path: "/stuff/share/" + name}
-		fmt.Fprintf(w, "(<a href=\"%s\">share</a>)\n", shareURL.String())
-
-		fmt.Fprintln(w, "</li>")
+		files[i].Label = name
+		files[i].BrowseLink = browseURL.String()
+		files[i].ShareLink = shareURL.String()
 	}
-	fmt.Fprintln(w, "</ul>")
+
+	upwardsURL := url.URL{Path: "/stuff/browse" + path.Join(filePath, "..")}
+
+	browsePage := &templates.BrowsePage{
+		DirectoryName: filePath,
+		Files:         files,
+
+		CanTravelUpwards: filePath != "" && filePath != "/",
+		UpwardsLink:      upwardsURL.String(),
+	}
+	templates.WritePageTemplate(w, browsePage)
 }
 
 func handleStuffShowForm(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -199,6 +212,7 @@ func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 
 	// force trailing slash
+	// todo: fix direct file link bug
 	if filePath == "" {
 		http.Redirect(w, r, r.URL.String()+"/", http.StatusFound)
 		return
