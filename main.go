@@ -35,7 +35,7 @@ func init() {
 		ID:         "bar",
 		Public:     false,
 		SharedPath: "data-private",
-	})
+	}
 	challenge.SetPassword("foo")
 	challengeRepository.Set(challenge)
 }
@@ -53,6 +53,28 @@ func renderUnauthorized(w http.ResponseWriter, r *http.Request) {
 func renderChallengeNotFound(w http.ResponseWriter, r *http.Request, ID string) {
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("Challenge not found"))
+}
+
+func handleChallengesIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	// todo: allow controlling pagination
+	challenges := challengeRepository.All(10, 0)
+
+	challengeResources := make([]*templates.ChallengeResource, len(challenges))
+	for i, challenge := range challenges {
+		challengeURL := url.URL{Path: "/view/" + challenge.ID}
+
+		challengeResources[i] = &templates.ChallengeResource{
+			Challenge: challenge,
+
+			ViewLink: challengeURL.String(),
+		}
+	}
+
+	templates.WritePageTemplate(w, &templates.ChallengeIndexPage{
+		Challenges: challengeResources,
+
+		Page: 1,
+	}, &templates.PrivateNav{})
 }
 
 func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -339,6 +361,8 @@ func main() {
 	router := httprouter.New()
 
 	router.GET("/", handleHome)
+
+	router.GET("/challenges", handleChallengesIndex)
 
 	router.GET("/stuff/browse/*filepath", handleStuffIndex)
 	router.GET("/stuff/share/*filepath", handleStuffShowForm)

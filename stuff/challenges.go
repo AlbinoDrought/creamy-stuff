@@ -63,13 +63,35 @@ func (challenge *Challenge) Accessible(r *http.Request) bool {
 }
 
 type ChallengeRepository interface {
+	All(limit int, offset int) []*Challenge
 	Get(ID string) *Challenge
 	Set(challenge *Challenge)
 	Remove(challenge *Challenge)
 }
 
 type ArrayChallengeRepository struct {
-	challenges map[string]*Challenge
+	challengeIDs []string
+	challenges   map[string]*Challenge
+}
+
+func (repo *ArrayChallengeRepository) All(limit int, offset int) []*Challenge {
+	challengeCount := len(repo.challengeIDs)
+
+	pageStart := offset
+	pageEnd := offset + limit
+
+	if pageEnd > challengeCount {
+		pageEnd = challengeCount
+	}
+
+	challenges := make([]*Challenge, pageEnd-pageStart)
+
+	for i := range challenges {
+		challengeID := repo.challengeIDs[pageStart+i]
+		challenges[i] = repo.challenges[challengeID]
+	}
+
+	return challenges
 }
 
 func (repo *ArrayChallengeRepository) Get(ID string) *Challenge {
@@ -78,15 +100,25 @@ func (repo *ArrayChallengeRepository) Get(ID string) *Challenge {
 }
 
 func (repo *ArrayChallengeRepository) Set(challenge *Challenge) {
+	if _, exists := repo.challenges[challenge.ID]; !exists {
+		repo.challengeIDs = append(repo.challengeIDs, challenge.ID)
+	}
 	repo.challenges[challenge.ID] = challenge
 }
 
 func (repo *ArrayChallengeRepository) Remove(challenge *Challenge) {
 	delete(repo.challenges, challenge.ID)
+	for i, id := range repo.challengeIDs {
+		if id == challenge.ID {
+			repo.challengeIDs = append(repo.challengeIDs[:i], repo.challengeIDs[i+1:]...)
+			break
+		}
+	}
 }
 
 func NewArrayChallengeRepository() ChallengeRepository {
 	return &ArrayChallengeRepository{
-		challenges: make(map[string]*Challenge),
+		challengeIDs: []string{},
+		challenges:   make(map[string]*Challenge),
 	}
 }

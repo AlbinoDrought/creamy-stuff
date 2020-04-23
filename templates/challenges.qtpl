@@ -1,0 +1,33 @@
+{% import "github.com/AlbinoDrought/creamy-stuff/stuff" %}
+
+{% code
+type ChallengeResource struct {
+  *stuff.Challenge
+
+  ViewLink string
+}
+
+type ChallengeIndexPage struct {
+  Challenges []*ChallengeResource
+
+  Page int
+}
+%}
+
+{% func (p *ChallengeIndexPage) Title() %}
+	Active Shares
+{% endfunc %}
+
+{% func (p *ChallengeIndexPage) Body() %}
+  <ul>
+    {% for _, challenge := range p.Challenges %}
+      <li>
+        <a href="{%s challenge.ViewLink %}">{%s challenge.ID %}</a>:
+        {%s challenge.SharedPath %}
+        {% if challenge.Public %}
+          <i>(public)</i>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endfunc %}
