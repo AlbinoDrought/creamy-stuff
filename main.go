@@ -6,7 +6,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"net/url"
 	"path"
 	"sort"
 
@@ -21,6 +20,8 @@ const challengeRandomPasswordLength = 128
 var dataDirectory = "data"
 
 var challengeRepository stuff.ChallengeRepository
+var challengeURLGenerator ChallengeURLGenerator
+var browseURLGenerator BrowseURLGenerator
 
 func init() {
 	challengeRepository = stuff.NewArrayChallengeRepository()
@@ -38,6 +39,10 @@ func init() {
 	}
 	challenge.SetPassword("foo")
 	challengeRepository.Set(challenge)
+
+	urlGenerator := &hardcodedURLGenerator{}
+	challengeURLGenerator = urlGenerator
+	browseURLGenerator = urlGenerator
 }
 
 func writeErrorPage(w http.ResponseWriter, page *templates.ErrorPage) {
@@ -72,12 +77,10 @@ func handleChallengesIndex(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	challengeResources := make([]*templates.ChallengeResource, len(challenges))
 	for i, challenge := range challenges {
-		challengeURL := url.URL{Path: "/view/" + challenge.ID}
-
 		challengeResources[i] = &templates.ChallengeResource{
 			Challenge: challenge,
 
-			ViewLink: challengeURL.String(),
+			ViewLink: challengeURLGenerator.ViewChallenge(challenge),
 		}
 	}
 
@@ -128,15 +131,10 @@ func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 
 		pathRelativeToDataDir := path.Join(filePath, name)
 
-		browseURL := url.URL{Path: "/stuff/browse" + pathRelativeToDataDir}
-		shareURL := url.URL{Path: "/stuff/share" + pathRelativeToDataDir}
-
 		files[i].Label = name
-		files[i].BrowseLink = browseURL.String()
-		files[i].ShareLink = shareURL.String()
+		files[i].BrowseLink = browseURLGenerator.BrowsePath(pathRelativeToDataDir)
+		files[i].ShareLink = browseURLGenerator.SharePath(pathRelativeToDataDir)
 	}
-
-	upwardsURL := url.URL{Path: "/stuff/browse" + path.Join(filePath, "..")}
 
 	atRoot := filePath == "" || filePath == "/" || filePath == "."
 	directoryName := filePath
@@ -149,7 +147,7 @@ func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 		Files:         files,
 
 		CanTravelUpwards: !atRoot,
-		UpwardsLink:      upwardsURL.String(),
+		UpwardsLink:      browseURLGenerator.BrowsePath(path.Join(filePath, "..")),
 	}
 	templates.WritePageTemplate(w, browsePage, &templates.PrivateNav{})
 }
@@ -179,14 +177,12 @@ func handleStuffShowForm(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		return
 	}
 
-	cancelURL := url.URL{Path: "/stuff/browse" + path.Join(filePath, "..")}
-
 	sharePage := &templates.SharePage{
 		Path:           filePath,
 		CSRF:           csrfToken,
 		RandomPassword: randomPassword,
 
-		CancelLink: cancelURL.String(),
+		CancelLink: browseURLGenerator.BrowsePath(path.Join(filePath, "..")),
 	}
 	templates.WritePageTemplate(w, sharePage, &templates.PrivateNav{})
 }
@@ -230,12 +226,10 @@ func handleStuffReceiveForm(w http.ResponseWriter, r *http.Request, ps httproute
 
 	challengeRepository.Set(challenge)
 
-	challengeURL := url.URL{Path: "/view/" + challenge.ID}
-
 	sharedChallengePage := &templates.SharedChallengePage{
 		Challenge: challenge,
 
-		ViewLink: challengeURL.String(),
+		ViewLink: challengeURLGenerator.ViewChallenge(challenge),
 	}
 	templates.WritePageTemplate(w, sharedChallengePage, &templates.PrivateNav{})
 }
@@ -307,13 +301,9 @@ func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprout
 			name += "/"
 		}
 
-		browseURL := url.URL{Path: "/view/" + challenge.ID + "/" + path.Join(filePath, name)}
-
 		files[i].Label = name
-		files[i].BrowseLink = browseURL.String()
+		files[i].BrowseLink = challengeURLGenerator.ViewChallengePath(challenge, path.Join(filePath, name))
 	}
-
-	upwardsURL := url.URL{Path: "/view/" + challenge.ID + "/" + path.Join(filePath, "..")}
 
 	atRoot := filePath == "" || filePath == "/" || filePath == "."
 	directoryName := filePath
@@ -326,7 +316,7 @@ func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprout
 		Files:         files,
 
 		CanTravelUpwards: !atRoot,
-		UpwardsLink:      upwardsURL.String(),
+		UpwardsLink:      challengeURLGenerator.ViewChallengePath(challenge, path.Join(filePath, "..")),
 	}
 	templates.WritePageTemplate(w, browsePage, &templates.EmptyNav{})
 }
