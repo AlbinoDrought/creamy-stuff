@@ -323,6 +323,7 @@ func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprout
 
 func handleChallengeAuthentication(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	challengeID := ps.ByName("challenge")
+	filePath := ps.ByName("filepath")
 
 	challenge := challengeRepository.Get(challengeID)
 	if challenge == nil {
@@ -332,7 +333,7 @@ func handleChallengeAuthentication(w http.ResponseWriter, r *http.Request, ps ht
 
 	// already has access, no need for auth
 	if challenge.Accessible(r) {
-		http.Redirect(w, r, r.URL.String(), http.StatusFound)
+		http.Redirect(w, r, challengeURLGenerator.ViewChallengePath(challenge, filePath), http.StatusFound)
 		return
 	}
 
