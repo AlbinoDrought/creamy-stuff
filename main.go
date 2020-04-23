@@ -49,6 +49,11 @@ func renderUnauthorized(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("401 Unauthorized"))
 }
 
+func renderChallengeNotFound(w http.ResponseWriter, r *http.Request, ID string) {
+	w.WriteHeader(http.StatusNotFound)
+	w.Write([]byte("Challenge not found"))
+}
+
 func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	filePath := path.Clean(ps.ByName("filepath"))
 
@@ -207,8 +212,7 @@ func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprout
 
 	challenge := challengeRepository.Get(challengeID)
 	if challenge == nil {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("Challenge not found"))
+		renderChallengeNotFound(w, r, challengeID)
 		return
 	}
 
@@ -298,8 +302,7 @@ func handleChallengeAuthentication(w http.ResponseWriter, r *http.Request, ps ht
 
 	challenge := challengeRepository.Get(challengeID)
 	if challenge == nil {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("Challenge not found"))
+		renderChallengeNotFound(w, r, challengeID)
 		return
 	}
 
