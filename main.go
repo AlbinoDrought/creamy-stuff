@@ -31,12 +31,13 @@ func init() {
 		SharedPath: "data",
 	})
 
-	challengeRepository.Set(&stuff.Challenge{
+	challenge := &stuff.Challenge{
 		ID:         "bar",
 		Public:     false,
 		SharedPath: "data-private",
 	})
-	challengeRepository.Get("bar").SetPassword("foo")
+	challenge.SetPassword("foo")
+	challengeRepository.Set(challenge)
 }
 
 func renderServerError(w http.ResponseWriter, r *http.Request, err error) {
