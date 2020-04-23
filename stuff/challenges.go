@@ -15,10 +15,26 @@ type Challenge struct {
 
 	HasPassword  bool
 	PasswordHash string
+
+	Expires    bool
+	ValidUntil time.Time
 }
 
 func (challenge *Challenge) CookieName() string {
 	return hex.EncodeToString([]byte(challenge.ID))
+}
+
+func (challenge *Challenge) Expired() bool {
+	if !challenge.Expires {
+		return false
+	}
+
+	return time.Now().After(challenge.ValidUntil)
+}
+
+func (challenge *Challenge) SetExpirationDate(date time.Time) {
+	challenge.Expires = true
+	challenge.ValidUntil = date
 }
 
 func (challenge *Challenge) SetPassword(password string) error {
@@ -47,6 +63,10 @@ func (challenge *Challenge) StorePassword(password string, w http.ResponseWriter
 }
 
 func (challenge *Challenge) Accessible(r *http.Request) bool {
+	if challenge.Expired() {
+		return false
+	}
+
 	if challenge.Public {
 		return true
 	}

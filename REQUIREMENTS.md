@@ -15,7 +15,7 @@
 ## Next
 
 - [x] Shared link passwords
-- [ ] Shared link analytics
+- [ ] Shared link analytics (mainly for the next point)
 - [ ] Shared link download-count expiration
 
 ## Next

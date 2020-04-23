@@ -27,6 +27,16 @@ type ChallengeIndexPage struct {
         {% if challenge.Public %}
           <i>(public)</i>
         {% endif %}
+        {% if challenge.Expires %}
+          <i>
+          {% if challenge.Expired() %}
+            (expired
+          {% else %}
+            (expires
+          {% endif %}
+            on {%s challenge.ValidUntil.Format("Jan 02 3:04 PM") %})
+          </i>
+        {% endif %}
       </li>
     {% endfor %}
   </ul>

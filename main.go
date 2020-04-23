@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"path"
 	"sort"
+	"time"
 
 	"github.com/AlbinoDrought/creamy-stuff/stuff"
 	"github.com/AlbinoDrought/creamy-stuff/templates"
@@ -32,13 +33,21 @@ func init() {
 		SharedPath: "data",
 	})
 
-	challenge := &stuff.Challenge{
+	barChallenge := &stuff.Challenge{
 		ID:         "bar",
 		Public:     false,
 		SharedPath: "data-private",
 	}
-	challenge.SetPassword("foo")
-	challengeRepository.Set(challenge)
+	barChallenge.SetPassword("foo")
+	challengeRepository.Set(barChallenge)
+
+	foobarChallenge := &stuff.Challenge{
+		ID:         "foobar",
+		Public:     true,
+		SharedPath: "data",
+	}
+	foobarChallenge.SetExpirationDate(time.Now().Add(1 * time.Minute))
+	challengeRepository.Set(foobarChallenge)
 
 	urlGenerator := &hardcodedURLGenerator{}
 	challengeURLGenerator = urlGenerator
