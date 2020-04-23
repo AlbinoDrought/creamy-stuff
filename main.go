@@ -44,6 +44,11 @@ func renderServerError(w http.ResponseWriter, r *http.Request, err error) {
 	w.Write([]byte("500 Internal Server Error"))
 }
 
+func renderUnauthorized(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusUnauthorized)
+	w.Write([]byte("401 Unauthorized"))
+}
+
 func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	filePath := path.Clean(ps.ByName("filepath"))
 
@@ -222,8 +227,7 @@ func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprout
 				CSRF:      csrfToken,
 			}, &templates.EmptyNav{})
 		} else {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Unauthorized"))
+			renderUnauthorized(w, r)
 		}
 
 		return
