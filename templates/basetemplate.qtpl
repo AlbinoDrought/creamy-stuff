@@ -13,12 +13,52 @@ Page prints a page implementing Page interface.
 {% func PageTemplate(p Page) %}
 <html>
 	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<meta name="theme-color" content="#1b1b1b">
+
 		<title>{%= p.Title() %}</title>
+		
+		<style type="text/css">
+			html, body, head {
+				background-color: rgb(27, 27, 27);
+				min-height: 100%;
+				line-height: 1.15;
+				color: white;
+				font-family: mono;
+			}
+
+			a { color: mediumaquamarine }
+			a:hover { opacity: 0.9 }
+			a:active { opacity: 0.6 }
+
+			nav {
+				width: 100%;
+				border-bottom: 1px solid rgba(34, 36, 38, 0.15);
+				margin-bottom: 1em;
+			}
+
+			nav>a {
+				margin: 0.5em;
+			}
+
+			input[type="text"] {
+				padding: 0.25em;
+				margin: 0 1em;
+				outline: none;
+				border: 1px solid rgba(34, 36, 38, 0.15);
+				background-color: rgba(255, 255, 255, 0.1);
+				color: white;
+			}
+		</style>
 	</head>
 	<body>
-		<div>
+		<nav>
+			<a href="/">Home</a>
 			<a href="/stuff/browse">Browse</a>
-		</div>
+			<a href="/challenges">Active Shares</a>
+		</nav>
 		{%= p.Body() %}
 	</body>
 </html>
