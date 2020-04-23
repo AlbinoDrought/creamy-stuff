@@ -93,7 +93,7 @@ func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 
 	upwardsURL := url.URL{Path: "/stuff/browse" + path.Join(filePath, "..")}
 
-	atRoot := filePath == "" || filePath == "/"
+	atRoot := filePath == "" || filePath == "/" || filePath == "."
 	directoryName := filePath
 	if atRoot {
 		directoryName = "/"
@@ -204,7 +204,7 @@ func handleStuffReceiveForm(w http.ResponseWriter, r *http.Request, ps httproute
 
 func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	challengeID := ps.ByName("challenge")
-	filePath := ps.ByName("filepath")
+	filePath := path.Clean(ps.ByName("filepath"))
 
 	challenge := challengeRepository.Get(challengeID)
 	if challenge == nil {
@@ -238,19 +238,67 @@ func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	// force trailing slash
-	// todo: fix direct file link bug
-	if filePath == "" {
-		http.Redirect(w, r, r.URL.String()+"/", http.StatusFound)
+	challengeBasePath := path.Join(dataDirectory, path.Clean(challenge.SharedPath))
+	dir := http.Dir(challengeBasePath)
+	file, err := dir.Open(filePath)
+	if err != nil {
+		log.Printf("Error opening file %v: %v", filePath, err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("500 Internal Server Error"))
 		return
 	}
 
-	http.StripPrefix(
-		"/view/"+challenge.ID+"/",
-		http.FileServer(http.Dir(
-			path.Join(dataDirectory, challenge.SharedPath),
-		)),
-	).ServeHTTP(w, r)
+	stat, err := file.Stat()
+	if err != nil {
+		log.Printf("Error stat'ing file %v: %v", filePath, err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("500 Internal Server Error"))
+		return
+	}
+
+	if !stat.IsDir() {
+		http.ServeFile(w, r, path.Join(challengeBasePath, filePath))
+		return
+	}
+
+	dirs, err := file.Readdir(-1)
+	if err != nil {
+		log.Printf("Error reading directory %v: %v", filePath, err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("500 Internal Server Error"))
+		return
+	}
+	sort.Slice(dirs, func(i, j int) bool { return dirs[i].Name() < dirs[j].Name() })
+
+	files := make([]templates.File, len(dirs))
+	for i, dir := range dirs {
+		name := dir.Name()
+		if dir.IsDir() {
+			name += "/"
+		}
+
+		browseURL := url.URL{Path: "/view/" + challenge.ID + "/" + path.Join(filePath, name)}
+
+		files[i].Label = name
+		files[i].BrowseLink = browseURL.String()
+	}
+
+	upwardsURL := url.URL{Path: "/view/" + challenge.ID + "/" + path.Join(filePath, "..")}
+
+	atRoot := filePath == "" || filePath == "/" || filePath == "."
+	directoryName := filePath
+	if atRoot {
+		directoryName = "/"
+	}
+
+	browsePage := &templates.BrowsePage{
+		DirectoryName: directoryName,
+		Files:         files,
+
+		CanTravelUpwards: !atRoot,
+		UpwardsLink:      upwardsURL.String(),
+	}
+	templates.WritePageTemplate(w, browsePage, &templates.EmptyNav{})
 }
 
 func handleChallengeAuthentication(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
