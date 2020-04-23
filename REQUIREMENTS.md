@@ -9,8 +9,8 @@
 
 ## Next
 
-- [ ] Shared link timed expiration
-- [ ] Revokable shared links (revoke a shared link after creation, manually)
+- [x] Shared link timed expiration
+- [x] Revokable shared links (revoke a shared link after creation, manually)
 
 ## Next
 

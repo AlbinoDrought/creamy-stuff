@@ -93,11 +93,38 @@ func handleChallengesIndex(w http.ResponseWriter, r *http.Request, ps httprouter
 		}
 	}
 
+	csrfToken, err := getOrCreateCSRF(w, r)
+	if err != nil {
+		log.Printf("Error with getOrCreateCSRF: %v", err)
+		renderServerError(w, r, err)
+		return
+	}
+
 	templates.WritePageTemplate(w, &templates.ChallengeIndexPage{
 		Challenges: challengeResources,
+		CSRF:       csrfToken,
 
 		Page: 1,
 	}, &templates.PrivateNav{})
+}
+
+func handleChallengeDelete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	challengeID := ps.ByName("challenge")
+
+	if err := validCSRF(r, r.FormValue("_token")); err != nil {
+		log.Printf("Error validating CSRF token: %v", err)
+		renderServerError(w, r, err)
+		return
+	}
+
+	challenge := challengeRepository.Get(challengeID)
+	if challenge == nil {
+		renderChallengeNotFound(w, r, challengeID)
+		return
+	}
+
+	challengeRepository.Remove(challenge)
+	http.Redirect(w, r, "/challenges", http.StatusFound)
 }
 
 func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -393,6 +420,8 @@ func main() {
 	router.GET("/", handleHome)
 
 	router.GET("/challenges", handleChallengesIndex)
+	router.DELETE("/challenges/:challenge", handleChallengeDelete)
+	router.POST("/challenges/:challenge/delete", handleChallengeDelete)
 
 	router.GET("/stuff/browse/*filepath", handleStuffIndex)
 	router.GET("/stuff/share/*filepath", handleStuffShowForm)

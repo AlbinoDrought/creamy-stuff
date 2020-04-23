@@ -9,6 +9,7 @@ type ChallengeResource struct {
 
 type ChallengeIndexPage struct {
   Challenges []*ChallengeResource
+  CSRF string
 
   Page int
 }
@@ -37,6 +38,11 @@ type ChallengeIndexPage struct {
             on {%s challenge.ValidUntil.Format("Jan 02 3:04 PM") %})
           </i>
         {% endif %}
+
+          <form method="POST" action="/challenges/{%s challenge.ID %}/delete">
+            <input type="hidden" name="_token" value="{%s p.CSRF %}">
+            <button type="submit">Delete</button>
+          </form>
       </li>
     {% endfor %}
   </ul>
