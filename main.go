@@ -55,8 +55,6 @@ func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 	}
 	sort.Slice(dirs, func(i, j int) bool { return dirs[i].Name() < dirs[j].Name() })
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
 	files := make([]templates.File, len(dirs))
 	for i, dir := range dirs {
 		name := dir.Name()
@@ -119,8 +117,6 @@ func handleStuffShowForm(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		w.Write([]byte("500 Internal Server Error"))
 		return
 	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	cancelURL := url.URL{Path: "/stuff/browse" + path.Join(filePath, "..")}
 
