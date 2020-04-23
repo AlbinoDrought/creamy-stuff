@@ -24,6 +24,27 @@ type SharePage struct {
         <input type="checkbox" name="public" value="1">
       </label>
     </div>
+    
+    <div>
+      <label for="expires">
+        Expires
+        <input type="checkbox" name="expires" value="1">
+      </label>
+    </div>
+
+    <div>
+      <label for="expiration-date">
+        Expiration Date
+      </label>
+      <input type="date" name="expiration-date">
+    </div>
+
+    <div>
+      <label for="expiration-time">
+        Expiration Time
+      </label>
+      <input type="time" name="expiration-time">
+    </div>
 
     <div>
       <label for="challenge-password">Password</label>

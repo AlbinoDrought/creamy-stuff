@@ -232,6 +232,25 @@ func handleStuffReceiveForm(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 	}
+	if expires := r.FormValue("expires"); expires == "1" {
+		expirationDate := r.FormValue("expiration-date")
+		if expirationDate == "" {
+			expirationDate = time.Now().Add(24 * time.Hour).Format("2006-01-02")
+		}
+		expirationTime := r.FormValue("expiration-time")
+		if expirationTime == "" {
+			expirationTime = time.Now().Format("15:04")
+		}
+
+		parsedExpirationTime, err := time.Parse("2006-01-02 15:04", expirationDate+" "+expirationTime)
+		if err != nil {
+			log.Printf("Error parsing expiration time: %v", err)
+			renderServerError(w, r, err)
+			return
+		}
+
+		challenge.SetExpirationDate(parsedExpirationTime)
+	}
 
 	challengeRepository.Set(challenge)
 
