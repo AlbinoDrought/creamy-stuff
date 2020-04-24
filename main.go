@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"path"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/AlbinoDrought/creamy-stuff/stuff"
@@ -49,6 +50,14 @@ func init() {
 	}
 	foobarChallenge.SetExpirationDate(time.Now().Add(1 * time.Minute))
 	challengeRepository.Set(foobarChallenge)
+
+	floofChallenge := &stuff.Challenge{
+		ID:         "floof",
+		Public:     true,
+		SharedPath: "data",
+	}
+	floofChallenge.SetMaxViewCount(2)
+	challengeRepository.Set(floofChallenge)
 
 	urlGenerator := &hardcodedURLGenerator{}
 	challengeURLGenerator = urlGenerator
@@ -280,6 +289,15 @@ func handleStuffReceiveForm(w http.ResponseWriter, r *http.Request, ps httproute
 
 		challenge.SetExpirationDate(parsedExpirationTime)
 	}
+	if maxViewCountEnabled := r.FormValue("max-view-count-enabled"); maxViewCountEnabled == "1" {
+		maxViewCount, err := strconv.Atoi(r.FormValue("max-view-count"))
+		if err != nil {
+			log.Printf("Error converting max view count %s to int: %v", r.FormValue("max-view-count"), err)
+			renderServerError(w, r, err)
+			return
+		}
+		challenge.SetMaxViewCount(maxViewCount)
+	}
 
 	challengeRepository.Set(challenge)
 
@@ -340,7 +358,13 @@ func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprout
 
 	if !stat.IsDir() {
 		challengeRepository.ReportChallengeView(challenge, filePath, r)
-		w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", stat.Name()))
+		if challenge.HasViewCountLimit {
+			// some types of files can trigger many requests when displayed inline (streaming media).
+			// when a view count limit is enabled, serve the file as an attachment to bypass this.
+			w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", stat.Name()))
+		} else {
+			w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", stat.Name()))
+		}
 		http.ServeFile(w, r, path.Join(challengeBasePath, filePath))
 		return
 	}

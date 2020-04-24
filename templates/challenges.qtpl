@@ -30,6 +30,9 @@ type ChallengeIndexPage struct {
         {% else %}
           <i>({%d challenge.ViewCount %} views)</i>
         {% endif %}
+        {% if challenge.HitMaxViewCount() %}
+          <i>(hit max views)</i>
+        {% endif %}
         {% if challenge.Public %}
           <i>(public)</i>
         {% endif %}

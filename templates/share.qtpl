@@ -45,6 +45,20 @@ type SharePage struct {
       </label>
       <input type="time" name="expiration-time">
     </div>
+    
+    <div>
+      <label for="max-view-count-enabled">
+        Max View Count Enabled
+        <input type="checkbox" name="max-view-count-enabled" value="1">
+      </label>
+    </div>
+
+    <div>
+      <label for="max-view-count">
+        Max View Count
+      </label>
+      <input type="number" name="max-view-count" value="1">
+    </div>
 
     <div>
       <label for="challenge-password">Password</label>

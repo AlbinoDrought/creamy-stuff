@@ -19,7 +19,9 @@ type Challenge struct {
 	Expires    bool
 	ValidUntil time.Time
 
-	ViewCount int
+	HasViewCountLimit bool
+	MaxViewCount      int
+	ViewCount         int
 
 	views []*ChallengeView
 }
@@ -47,6 +49,15 @@ func (challenge *Challenge) Expired() bool {
 	}
 
 	return time.Now().After(challenge.ValidUntil)
+}
+
+func (challenge *Challenge) HitMaxViewCount() bool {
+	return challenge.HasViewCountLimit && challenge.ViewCount >= challenge.MaxViewCount
+}
+
+func (challenge *Challenge) SetMaxViewCount(maxViewCount int) {
+	challenge.HasViewCountLimit = true
+	challenge.MaxViewCount = maxViewCount
 }
 
 func (challenge *Challenge) SetExpirationDate(date time.Time) {
@@ -81,6 +92,10 @@ func (challenge *Challenge) StorePassword(password string, w http.ResponseWriter
 
 func (challenge *Challenge) Accessible(r *http.Request) bool {
 	if challenge.Expired() {
+		return false
+	}
+
+	if challenge.HitMaxViewCount() {
 		return false
 	}
 
