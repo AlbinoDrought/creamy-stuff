@@ -18,6 +18,23 @@ type Challenge struct {
 
 	Expires    bool
 	ValidUntil time.Time
+
+	ViewCount int
+
+	views []*ChallengeView
+}
+
+type ChallengeView struct {
+	Time time.Time
+	IP   string
+}
+
+func (challenge *Challenge) Views() []*ChallengeView {
+	// todo: probably change with actual data storage
+	if challenge.views == nil {
+		return []*ChallengeView{}
+	}
+	return challenge.views
 }
 
 func (challenge *Challenge) CookieName() string {
@@ -87,6 +104,7 @@ type ChallengeRepository interface {
 	Get(ID string) *Challenge
 	Set(challenge *Challenge)
 	Remove(challenge *Challenge)
+	ReportChallengeView(challenge *Challenge, filePath string, request *http.Request)
 }
 
 type ArrayChallengeRepository struct {
@@ -134,6 +152,19 @@ func (repo *ArrayChallengeRepository) Remove(challenge *Challenge) {
 			break
 		}
 	}
+}
+
+func (repo *ArrayChallengeRepository) ReportChallengeView(challenge *Challenge, filePath string, request *http.Request) {
+	if challenge.views == nil {
+		challenge.views = []*ChallengeView{}
+	}
+
+	challenge.views = append(challenge.views, &ChallengeView{
+		Time: time.Now(),
+		IP:   request.RemoteAddr,
+	})
+	challenge.ViewCount = len(challenge.views)
+	repo.Set(challenge)
 }
 
 func NewArrayChallengeRepository() ChallengeRepository {

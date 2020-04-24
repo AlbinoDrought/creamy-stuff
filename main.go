@@ -339,6 +339,7 @@ func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 
 	if !stat.IsDir() {
+		challengeRepository.ReportChallengeView(challenge, filePath, r)
 		w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", stat.Name()))
 		http.ServeFile(w, r, path.Join(challengeBasePath, filePath))
 		return

@@ -25,6 +25,11 @@ type ChallengeIndexPage struct {
       <li>
         <a href="{%s challenge.ViewLink %}">{%s challenge.ID %}</a>:
         {%s challenge.SharedPath %}
+        {% if challenge.ViewCount == 1 %}
+          <i>(1 view)</i>
+        {% else %}
+          <i>({%d challenge.ViewCount %} views)</i>
+        {% endif %}
         {% if challenge.Public %}
           <i>(public)</i>
         {% endif %}
