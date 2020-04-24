@@ -4,6 +4,7 @@ package main
 //go:generate qtc -dir=templates
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"path"
@@ -146,6 +147,7 @@ func handleStuffIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 	}
 
 	if !stat.IsDir() {
+		w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", stat.Name()))
 		http.ServeFile(w, r, path.Join(dataDirectory, filePath))
 		return
 	}
@@ -337,6 +339,7 @@ func handleChallengeFilepath(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 
 	if !stat.IsDir() {
+		w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", stat.Name()))
 		http.ServeFile(w, r, path.Join(challengeBasePath, filePath))
 		return
 	}
