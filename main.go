@@ -417,6 +417,20 @@ func handleHome(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 func main() {
 	router := httprouter.New()
 
+	router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		writeErrorPage(w, &templates.ErrorPage{
+			Status: http.StatusNotFound,
+			Text:   "Page Not Found",
+		})
+	})
+
+	router.MethodNotAllowed = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		writeErrorPage(w, &templates.ErrorPage{
+			Status: http.StatusMethodNotAllowed,
+			Text:   "Method Not Allowed",
+		})
+	})
+
 	router.GET("/", handleHome)
 
 	router.GET("/challenges", handleChallengesIndex)
