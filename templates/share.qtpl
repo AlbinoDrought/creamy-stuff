@@ -20,15 +20,15 @@ type SharePage struct {
     
     <div>
       <label for="public">
-        Public
         <input type="checkbox" name="public" value="1">
+        Public
       </label>
     </div>
     
     <div>
       <label for="expires">
-        Expires
         <input type="checkbox" name="expires" value="1">
+        Expires
       </label>
     </div>
 
@@ -48,8 +48,8 @@ type SharePage struct {
     
     <div>
       <label for="max-view-count-enabled">
-        Max View Count Enabled
         <input type="checkbox" name="max-view-count-enabled" value="1">
+        Max View Count Enabled
       </label>
     </div>
 
