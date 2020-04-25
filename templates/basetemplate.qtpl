@@ -44,13 +44,27 @@ Page prints a page implementing Page interface.
 				margin: 0.5em;
 			}
 
-			input[type="text"] {
+			label+input {
+				display: block;
+			}
+			
+			fieldset {
+				padding: .5em 1em;
+				margin: 1em 0;
+				border: none;
+				border-left: 0.1em solid gray;
+			}
+
+			input[type="text"], input[type="number"], input[type="date"], input[type="time"] {
 				padding: 0.25em;
-				margin: 0 1em;
 				outline: none;
 				border: 1px solid rgba(34, 36, 38, 0.15);
-				background-color: rgba(255, 255, 255, 0.1);
+				background-color: rgba(255, 255, 255, 0.15);
 				color: white;
+			}
+
+			input {
+				margin-bottom: 1em;
 			}
 
 			footer {

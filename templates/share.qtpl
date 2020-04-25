@@ -25,40 +25,44 @@ type SharePage struct {
       </label>
     </div>
     
-    <div>
-      <label for="expires">
-        <input type="checkbox" name="expires" value="1">
-        Expires
-      </label>
-    </div>
+    <fieldset>
+      <div>
+        <label for="expires">
+          <input type="checkbox" name="expires" value="1">
+          Expires
+        </label>
+      </div>
 
-    <div>
-      <label for="expiration-date">
-        Expiration Date
-      </label>
-      <input type="date" name="expiration-date">
-    </div>
+      <div>
+        <label for="expiration-date">
+          Expiration Date
+        </label>
+        <input type="date" name="expiration-date">
+      </div>
 
-    <div>
-      <label for="expiration-time">
-        Expiration Time
-      </label>
-      <input type="time" name="expiration-time">
-    </div>
+      <div>
+        <label for="expiration-time">
+          Expiration Time
+        </label>
+        <input type="time" name="expiration-time">
+      </div>
+    </fieldset>
     
-    <div>
-      <label for="max-view-count-enabled">
-        <input type="checkbox" name="max-view-count-enabled" value="1">
-        Max View Count Enabled
-      </label>
-    </div>
+    <fieldset>
+      <div>
+        <label for="max-view-count-enabled">
+          <input type="checkbox" name="max-view-count-enabled" value="1">
+          Max View Count Enabled
+        </label>
+      </div>
 
-    <div>
-      <label for="max-view-count">
-        Max View Count
-      </label>
-      <input type="number" name="max-view-count" value="1">
-    </div>
+      <div>
+        <label for="max-view-count">
+          Max View Count
+        </label>
+        <input type="number" name="max-view-count" value="1">
+      </div>
+    </fieldset>
 
     <div>
       <label for="challenge-password">Password</label>
