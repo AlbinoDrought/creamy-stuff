@@ -3,6 +3,7 @@ package main
 import (
 	"net/url"
 	"path"
+	"strings"
 
 	"github.com/AlbinoDrought/creamy-stuff/stuff"
 )
@@ -17,16 +18,20 @@ type BrowseURLGenerator interface {
 	SharePath(filePath string) string
 }
 
+func aftermarketEscape(url string) string {
+	return strings.ReplaceAll(url, "=", "%3D")
+}
+
 type hardcodedURLGenerator struct{}
 
 func (generator *hardcodedURLGenerator) ViewChallenge(challenge *stuff.Challenge) string {
 	challengeURL := url.URL{Path: "/view/" + challenge.ID}
-	return challengeURL.String()
+	return aftermarketEscape(challengeURL.String())
 }
 
 func (generator *hardcodedURLGenerator) ViewChallengePath(challenge *stuff.Challenge, filePath string) string {
 	browseURL := url.URL{Path: "/view/" + challenge.ID + "/" + path.Clean(filePath)}
-	return browseURL.String()
+	return aftermarketEscape(browseURL.String())
 }
 
 func (generator *hardcodedURLGenerator) BrowsePath(filePath string) string {
